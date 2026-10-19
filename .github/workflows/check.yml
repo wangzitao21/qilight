@@ -1,0 +1,42 @@
+name: Windows
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Rust
+        shell: pwsh
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          rustup default stable
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: windows-rust-${{ hashFiles('Cargo.lock', 'Cargo.toml', '.cargo/config.toml') }}
+      - name: Test and build
+        shell: pwsh
+        run: ./scripts/build.ps1
+      - uses: actions/upload-artifact@v7
+        with:
+          name: QiLight-windows-x64
+          path: dist/QiLight-*-windows-x64.zip
+          if-no-files-found: error

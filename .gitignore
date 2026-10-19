@@ -1,0 +1,14 @@
+/target/
+/.tools/
+/.scratch/
+/data/
+/.work/
+/devices.bin
+/*.bin.bak
+/.devices-*.tmp
+/dist/
+/*.exe
+AGENTS.md
+*.window.ron
+*.preview.ron
+
